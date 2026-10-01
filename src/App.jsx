@@ -6,7 +6,7 @@ import { PhotoGallery, VideoGallery, BlogPreview } from './Gallery';
 import Blog from './Blog';
 import Post from './Post';
 import Admin from './Admin';
-
+import WhatsAppButton from './WhatsAppButton';
 /* ============================================================
    1. HEADER
    ============================================================ */
@@ -835,6 +835,12 @@ function App() {
         {page === 'admin' && <Admin setPage={setPage} />}
       </main>
       <Footer setPage={setPage} />
+
+      {/* ✅ Widget WhatsApp */}
+      <WhatsAppButton 
+        phoneNumber="22664825342" 
+        message="Bonjour RDO-BF ! J'aimerais en savoir plus sur le réseau."
+      />
     </div>
   );
 }
