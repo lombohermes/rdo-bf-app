@@ -1,12 +1,18 @@
 import React, { useState, useEffect } from 'react';
 import { useTranslation } from 'react-i18next';
 import './App.css';
+import { useAuth } from './AuthContext';
+import { PhotoGallery, VideoGallery, BlogPreview } from './Gallery';
+import Blog from './Blog';
+import Post from './Post';
+import Admin from './Admin';
 
 /* ============================================================
    1. HEADER
    ============================================================ */
 const Header = ({ page, setPage }) => {
   const { t, i18n } = useTranslation();
+  const { currentUser, userData, logout } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
 
   const menuItems = [
@@ -15,6 +21,7 @@ const Header = ({ page, setPage }) => {
     { id: 'opportunities', label: t('nav.opportunities') },
     { id: 'pricing', label: t('nav.pricing') },
     { id: 'events', label: t('nav.events') },
+    { id: 'blog', label: t('nav.blog') },
     { id: 'members', label: t('nav.members') },
     { id: 'partners', label: t('nav.partners') },
     { id: 'contact', label: t('nav.contact') },
@@ -22,6 +29,11 @@ const Header = ({ page, setPage }) => {
 
   const changeLanguage = (e) => {
     i18n.changeLanguage(e.target.value);
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setPage('home');
   };
 
   return (
@@ -45,9 +57,32 @@ const Header = ({ page, setPage }) => {
         ))}
       </ul>
 
-      <button className="btn-join" onClick={() => setPage('register')}>
-        {t('nav.join')}
-      </button>
+      <div className="header-actions">
+        {currentUser ? (
+          <>
+            <button className="btn-profile" onClick={() => setPage('profile')}>
+              👤 {userData?.name?.split(' ')[0] || currentUser.email}
+            </button>
+            {(userData?.role === 'admin' || userData?.isAdmin === true) && (
+              <button className="btn-admin" onClick={() => setPage('admin')}>
+                ⚙️ Admin
+              </button>
+            )}
+            <button className="btn-logout" onClick={handleLogout}>
+              {t('auth.profile_logout')}
+            </button>
+          </>
+        ) : (
+          <>
+            <button className="btn-login" onClick={() => setPage('login')}>
+              {t('auth.login_button')}
+            </button>
+            <button className="btn-join" onClick={() => setPage('register')}>
+              {t('nav.join')}
+            </button>
+          </>
+        )}
+      </div>
 
       <div className="lang-selector">
         <select value={i18n.language} onChange={changeLanguage}>
@@ -192,7 +227,7 @@ const FirstEventBanner = () => {
 /* ============================================================
    4. PAGE ACCUEIL
    ============================================================ */
-const Home = ({ setPage }) => {
+const Home = ({ setPage, setSelectedPost }) => {
   const { t } = useTranslation();
   return (
     <>
@@ -216,6 +251,10 @@ const Home = ({ setPage }) => {
           </div>
         </div>
       </section>
+
+      <PhotoGallery />
+      <VideoGallery />
+      <BlogPreview setPage={setPage} setSelectedPost={setSelectedPost} />
 
       <section className="cta-section">
         <h3>{t('home.cta_title')}</h3>
@@ -444,39 +483,87 @@ const Contact = () => {
 /* ============================================================
    10. PAGE INSCRIPTION
    ============================================================ */
-const Register = () => {
+const Register = ({ setPage }) => {
   const { t } = useTranslation();
+  const { register } = useAuth();
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [role, setRole] = useState('entrepreneur');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await register(email, password, name, role);
+      setPage('profile');
+    } catch (err) {
+      console.error(err);
+      setError(t('auth.register_error') + ' ' + (err.message || ''));
+    } finally {
+      setLoading(false);
+    }
+  };
 
   return (
     <div className="container">
-      <h2>{t('register.title')}</h2>
-      <form onSubmit={(e) => { e.preventDefault(); alert('OK !'); }}>
-        <label>{t('register.label_role')}</label>
+      <h2>{t('auth.register_title')}</h2>
+      <form onSubmit={handleSubmit}>
+        <label>{t('auth.register_role')}</label>
         <select value={role} onChange={(e) => setRole(e.target.value)}>
-          <option value="entrepreneur">{t('register.role_entrepreneur')}</option>
-          <option value="investisseur">{t('register.role_investor')}</option>
-          <option value="professionnel">{t('register.role_professional')}</option>
-          <option value="porteur">{t('register.role_project')}</option>
+          <option value="entrepreneur">{t('auth.register_role_entrepreneur')}</option>
+          <option value="investisseur">{t('auth.register_role_investor')}</option>
+          <option value="professionnel">{t('auth.register_role_professional')}</option>
+          <option value="porteur">{t('auth.register_role_project')}</option>
         </select>
-        <input type="text" placeholder={t('register.name')} required />
-        <input type="email" placeholder={t('register.email')} required />
-        <input type="password" placeholder={t('register.password')} required />
+        <input
+          type="text"
+          placeholder={t('auth.register_name')}
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+          required
+        />
+        <input
+          type="email"
+          placeholder={t('auth.register_email')}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder={t('auth.register_password')}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+          minLength="6"
+        />
         {role === 'entrepreneur' && (
           <div className="upload-section">
-            <label>{t('register.upload_bp')}</label>
+            <label>{t('auth.register_upload_bp')}</label>
             <input type="file" accept=".pdf" />
-            <p><i>{t('register.upload_note')}</i></p>
+            <p><i>{t('auth.register_upload_note')}</i></p>
           </div>
         )}
-        <button type="submit" className="btn-primary">{t('register.submit')}</button>
+        {error && <p className="form-error">{error}</p>}
+        <button type="submit" className="btn-primary" disabled={loading}>
+          {loading ? t('auth.register_loading') : t('auth.register_button')}
+        </button>
+        <p className="form-switch">
+          {t('auth.register_has_account')}{' '}
+          <span onClick={() => setPage('login')}>{t('auth.register_login_link')}</span>
+        </p>
       </form>
     </div>
   );
 };
 
+
 /* ============================================================
-   11. PAGE ÉVÉNEMENTS
+   PAGE ÉVÉNEMENTS
    ============================================================ */
 const Events = () => {
   const { t } = useTranslation();
@@ -540,6 +627,112 @@ const Pricing = () => {
 };
 
 /* ============================================================
+   13. PAGE LOGIN
+   ============================================================ */
+const Login = ({ setPage }) => {
+  const { t } = useTranslation();
+  const { login } = useAuth();
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState('');
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    setLoading(true);
+    setError('');
+    try {
+      await login(email, password);
+      setPage('profile');
+    } catch (err) {
+      console.error(err);
+      setError(t('auth.login_error'));
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <div className="container">
+      <h2>{t('auth.login_title')}</h2>
+      <form onSubmit={handleSubmit}>
+        <input
+          type="email"
+          placeholder={t('auth.login_email')}
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+          required
+        />
+        <input
+          type="password"
+          placeholder={t('auth.login_password')}
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+          required
+        />
+        {error && <p className="form-error">{error}</p>}
+        <button type="submit" className="btn-primary" disabled={loading}>
+          {loading ? t('auth.login_loading') : t('auth.login_button')}
+        </button>
+        <p className="form-switch">
+          {t('auth.login_no_account')}{' '}
+          <span onClick={() => setPage('register')}>{t('auth.login_signup_link')}</span>
+        </p>
+      </form>
+    </div>
+  );
+};
+
+const Profile = ({ setPage }) => {
+  const { t } = useTranslation();
+  const { currentUser, userData, logout } = useAuth();
+
+  if (!currentUser) {
+    return (
+      <div className="container">
+        <h2>{t('auth.profile_title')}</h2>
+        <p className="lead">Vous devez être connecté pour voir votre profil.</p>
+        <div style={{ textAlign: 'center' }}>
+          <button className="btn-primary" onClick={() => setPage('login')}>
+            {t('auth.login_button')}
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  const handleLogout = async () => {
+    await logout();
+    setPage('home');
+  };
+
+  const memberSince = userData?.createdAt
+    ? new Date(userData.createdAt).toLocaleDateString('fr-FR')
+    : '-';
+
+  return (
+    <div className="container">
+      <h2>{t('auth.profile_title')}</h2>
+      <div className="profile-card">
+        <div className="profile-avatar">
+          {userData?.name?.charAt(0).toUpperCase() || '?'}
+        </div>
+        <h3>{t('auth.profile_welcome')}, {userData?.name || currentUser.email} !</h3>
+        <div className="profile-info">
+          <p><strong>{t('auth.register_email')} :</strong> {currentUser.email}</p>
+          <p><strong>{t('auth.profile_role')} :</strong> {userData?.role || '-'}</p>
+          <p><strong>{t('auth.profile_plan')} :</strong> {userData?.plan || 'free'}</p>
+          <p><strong>{t('auth.profile_member_since')} :</strong> {memberSince}</p>
+        </div>
+        <button className="btn-primary" onClick={handleLogout}>
+          {t('auth.profile_logout')}
+        </button>
+      </div>
+    </div>
+  );
+};
+
+/* ============================================================
    13. FOOTER
    ============================================================ */
 const Footer = ({ setPage }) => {
@@ -575,9 +768,9 @@ const Footer = ({ setPage }) => {
         <div className="footer-column">
           <h4>{t('footer.contact_title')}</h4>
           <ul className="footer-contact">
-            <li>📞 +226 XX XX XX XX</li>
-            <li>💬 WhatsApp : +226 XX XX XX XX</li>
-            <li>📍 Ouagadougou, Burkina Faso</li>
+            <li>📞 +226  64 82 53 42</li>
+            <li>💬 WhatsApp : +226  64 82 53 42</li>
+            <li>📍 Bendogo, Ouagadougou, Burkina Faso </li>
             <li>✉️ contact@rdo-bf.com</li>
           </ul>
           <h4 style={{ marginTop: '20px' }}>{t('footer.follow_us')}</h4>
@@ -620,24 +813,29 @@ const Footer = ({ setPage }) => {
    ============================================================ */
 function App() {
   const [page, setPage] = useState('home');
+  const [selectedPost, setSelectedPost] = useState(null);
 
   return (
     <div className="App">
       <Header page={page} setPage={setPage} />
       <main className="main-content">
-        {page === 'home' && <Home setPage={setPage} />}
+        {page === 'home' && <Home setPage={setPage} setSelectedPost={setSelectedPost} />}
         {page === 'about' && <About />}
         {page === 'opportunities' && <Opportunities />}
         {page === 'pricing' && <Pricing />}
         {page === 'events' && <Events />}
+        {page === 'blog' && <Blog setPage={setPage} setSelectedPost={setSelectedPost} />}
+        {page === 'post' && <Post post={selectedPost} setPage={setPage} />}
         {page === 'members' && <Members />}
         {page === 'partners' && <Partners />}
         {page === 'contact' && <Contact />}
-        {page === 'register' && <Register />}
+        {page === 'register' && <Register setPage={setPage} />}
+        {page === 'login' && <Login setPage={setPage} />}
+        {page === 'profile' && <Profile setPage={setPage} />}
+        {page === 'admin' && <Admin setPage={setPage} />}
       </main>
       <Footer setPage={setPage} />
     </div>
   );
 }
-
-export default App;
+export default App;   // ← ⚠️ CETTE LIGNE EST OBLIGATOIRE

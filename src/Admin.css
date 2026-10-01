@@ -1,0 +1,272 @@
+/* ============ ADMIN ============ */
+.admin-denied {
+  text-align: center;
+  padding: 60px 20px;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  max-width: 500px;
+  margin: 0 auto;
+}
+
+.admin-denied h2 {
+  color: #C8102E;
+  margin-bottom: 15px;
+}
+
+.admin-tabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 30px;
+  border-bottom: 2px solid #eee;
+  padding-bottom: 0;
+}
+
+.admin-tab {
+  background: none;
+  border: none;
+  padding: 12px 24px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #666;
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+  transition: all 0.2s;
+}
+
+.admin-tab:hover {
+  color: #007A33;
+}
+
+.admin-tab.active {
+  color: #C8102E;
+  border-bottom-color: #C8102E;
+}
+
+/* LISTE */
+.admin-post-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 20px;
+  background: #fff;
+  padding: 20px 25px;
+  border-radius: 12px;
+  box-shadow: 0 2px 10px rgba(0,0,0,0.06);
+  margin-bottom: 15px;
+  transition: transform 0.2s;
+}
+
+.admin-post-item:hover {
+  transform: translateX(5px);
+}
+
+.admin-post-info {
+  flex: 1;
+}
+
+.admin-post-status {
+  margin-bottom: 8px;
+}
+
+.status-published {
+  background: #d4f5e0;
+  color: #007A33;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.status-draft {
+  background: #fff3cd;
+  color: #856404;
+  font-size: 12px;
+  font-weight: 700;
+  padding: 3px 10px;
+  border-radius: 12px;
+}
+
+.admin-post-info h4 {
+  color: #C8102E;
+  font-size: 17px;
+  margin: 5px 0;
+}
+
+.admin-post-info p {
+  color: #666;
+  font-size: 14px;
+  margin: 5px 0;
+}
+
+.admin-post-meta {
+  display: flex;
+  gap: 15px;
+  font-size: 13px;
+  color: #999;
+  margin-top: 8px;
+}
+
+.admin-post-actions {
+  display: flex;
+  gap: 10px;
+  flex-shrink: 0;
+}
+
+.btn-edit, .btn-delete {
+  border: none;
+  padding: 10px 18px;
+  border-radius: 8px;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-edit {
+  background: #007A33;
+  color: #fff;
+}
+
+.btn-edit:hover {
+  background: #005522;
+}
+
+.btn-delete {
+  background: #C8102E;
+  color: #fff;
+}
+
+.btn-delete:hover {
+  background: #8B0000;
+}
+
+/* FORMULAIRE */
+.admin-form-wrapper {
+  background: #fff;
+  padding: 35px;
+  border-radius: 12px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.admin-form-wrapper h3 {
+  color: #C8102E;
+  margin-bottom: 25px;
+  padding-bottom: 15px;
+  border-bottom: 2px solid #f0f8f4;
+}
+
+.admin-form label {
+  display: block;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 6px;
+  margin-top: 15px;
+  font-size: 14px;
+}
+
+.admin-form input[type="text"],
+.admin-form input[type="url"],
+.admin-form textarea,
+.admin-form select {
+  width: 100%;
+  padding: 12px 14px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  font-size: 15px;
+  font-family: inherit;
+  background: #fafafa;
+  transition: all 0.2s;
+}
+
+.admin-form input:focus,
+.admin-form textarea:focus,
+.admin-form select:focus {
+  outline: none;
+  border-color: #007A33;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(0,122,51,0.1);
+}
+
+.admin-form textarea {
+  resize: vertical;
+  min-height: 80px;
+}
+
+.admin-form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+
+.admin-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 20px;
+  padding: 15px;
+  background: #f0f8f4;
+  border-radius: 8px;
+}
+
+.admin-checkbox input {
+  width: 20px;
+  height: 20px;
+  cursor: pointer;
+}
+
+.admin-checkbox label {
+  margin: 0;
+  cursor: pointer;
+  font-size: 14px;
+}
+
+.admin-form-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 15px;
+  margin-top: 30px;
+  padding-top: 20px;
+  border-top: 2px solid #eee;
+}
+
+.btn-cancel {
+  background: #eee;
+  color: #333;
+  border: none;
+  padding: 12px 28px;
+  border-radius: 8px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s;
+}
+
+.btn-cancel:hover {
+  background: #ddd;
+}
+
+@media (max-width: 700px) {
+  .admin-post-item {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .admin-post-actions {
+    width: 100%;
+  }
+
+  .btn-edit, .btn-delete {
+    flex: 1;
+  }
+
+  .admin-form-row {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-tabs {
+    flex-direction: column;
+  }
+}
